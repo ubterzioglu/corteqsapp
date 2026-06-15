@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../features/auth/presentation/login_page.dart';
 import '../../features/cadde/presentation/cadde_feed_page.dart';
 import '../../features/directory/presentation/directory_page.dart';
+import '../../features/directory/presentation/public_profile_page.dart';
 import '../../features/home/presentation/home_page.dart';
 import '../../features/profile/presentation/self_profile_page.dart';
 import '../../shared/providers/auth_providers.dart';
@@ -78,6 +79,15 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: RoutePaths.directory,
                 builder: (context, state) => const DirectoryPage(),
+                routes: [
+                  // Kanonik public profil: /directory/catalog/:slug
+                  GoRoute(
+                    path: 'catalog/:slug',
+                    builder: (context, state) => PublicProfilePage(
+                      slug: state.pathParameters['slug']!,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
