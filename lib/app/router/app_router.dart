@@ -9,6 +9,7 @@ import '../../features/cadde/presentation/carsi_page.dart';
 import '../../features/directory/presentation/directory_page.dart';
 import '../../features/directory/presentation/public_profile_page.dart';
 import '../../features/home/presentation/home_page.dart';
+import '../../features/lansman/presentation/survey_page.dart';
 import '../../features/profile/presentation/self_profile_page.dart';
 import '../../shared/providers/auth_providers.dart';
 import 'app_shell.dart';
@@ -55,6 +56,13 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           // UUID-vs-slug ayrımı Phase 3'te ProfileRouteResolver ile netleşecek.
           return RoutePaths.directoryCatalogOf(userId);
         },
+      ),
+      // Public anket (auth gerektirmez) — root navigator.
+      GoRoute(
+        path: RoutePaths.survey,
+        parentNavigatorKey: _rootKey,
+        builder: (context, state) =>
+            SurveyPage(slug: state.pathParameters['slug']!),
       ),
       GoRoute(
         path: RoutePaths.login,

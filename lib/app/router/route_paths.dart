@@ -25,6 +25,10 @@ class RoutePaths {
 
   static const contact = '/iletisim';
 
+  /// Public anket akışı (auth gerektirmez).
+  static const survey = '/anket/:slug';
+  static String surveyOf(String slug) => '/anket/$slug';
+
   /// Auth gerektiren kökler (router redirect guard için).
   static const protectedRoots = <String>{profile, directory, cadde};
 }
