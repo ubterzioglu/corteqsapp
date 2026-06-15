@@ -2,54 +2,110 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../shared/providers/auth_providers.dart';
-import '../../../shared/widgets/async_value_view.dart';
-import '../domain/cadde_models.dart' as m;
+import '../domain/cadde_models.dart';
 import 'cadde_providers.dart';
 import 'widgets/cadde_post_card.dart';
 
-/// Cadde feed — composer + feed listesi + reaksiyon (app.md 388-390).
+/// Cadde feed — composer + feed listesi + reaksiyon + sonsuz scroll (app.md 388-390).
 /// `cadde.access` feature gate giriş + yetki gerektirir (UX katmanı; gerçek yetki RLS).
-class CaddeFeedPage extends ConsumerWidget {
+class CaddeFeedPage extends ConsumerStatefulWidget {
   const CaddeFeedPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<CaddeFeedPage> createState() => _CaddeFeedPageState();
+}
+
+class _CaddeFeedPageState extends ConsumerState<CaddeFeedPage> {
+  final _scrollController = ScrollController();
+  bool _showLoadingIndicator = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (!_scrollController.hasClients) return;
+
+    final feedState = ref.read(caddeFeedProvider);
+    // Sayfa sonuna yaklaştıkça daha fazla yükle
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 200) {
+      if (feedState.canLoadMore && !_showLoadingIndicator) {
+        _showLoadingIndicator = true;
+        ref.read(caddeFeedProvider.notifier).loadMore().then((_) {
+          if (mounted) setState(() => _showLoadingIndicator = false);
+        });
+      }
+    }
+  }
+
+  Future<void> _refresh() async {
+    await ref.read(caddeFeedProvider.notifier).refresh();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final isLoggedIn = ref.watch(isLoggedInProvider);
-    final feed = ref.watch(caddeFeedProvider);
+    final feedState = ref.watch(caddeFeedProvider);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Cadde')),
       body: RefreshIndicator(
-        onRefresh: () async => ref.invalidate(caddeFeedProvider),
+        onRefresh: _refresh,
         child: ListView(
           key: const Key('cadde_feed_page'),
+          controller: _scrollController,
           padding: const EdgeInsets.all(12),
           children: [
             if (isLoggedIn) const _Composer(),
             const SizedBox(height: 8),
-            AsyncValueView<m.CaddeFeedPage>(
-              value: feed,
-              data: (page) {
-                final posts = page.items;
-                if (posts.isEmpty) {
-                  return const Padding(
-                    padding: EdgeInsets.all(24),
-                    child: Center(child: Text('Henüz gönderi yok.')),
-                  );
-                }
-                return Column(
-                  children: [
-                    for (var i = 0; i < posts.length; i++)
-                      CaddePostCard(
-                        post: posts[i],
-                        isFirst: i == 0,
-                        onReact: (type) => ref
-                            .read(caddeReactionProvider)(posts[i].id, type),
+            if (feedState.hasError)
+              const Padding(
+                padding: EdgeInsets.all(24),
+                child: Center(
+                  child: Text('Bir hata oluştu. Yenilemeyi deneyin.'),
+                ),
+              )
+            else if (feedState.items.isEmpty)
+              const Padding(
+                padding: EdgeInsets.all(24),
+                child: Center(child: Text('Henüz gönderi yok.')),
+              )
+            else
+              Column(
+                children: [
+                  for (var i = 0; i < feedState.items.length; i++)
+                    CaddePostCard(
+                      post: feedState.items[i],
+                      isFirst: i == 0,
+                      onReact: (type) =>
+                          ref.read(caddeReactionProvider)(feedState.items[i].id, type),
+                    ),
+                  // Loading indicator for infinite scroll
+                  if (feedState.isLoadingMore || _showLoadingIndicator)
+                    const Padding(
+                      padding: EdgeInsets.all(16),
+                      child: Center(
+                        child: CircularProgressIndicator(),
                       ),
-                  ],
-                );
-              },
-            ),
+                    )
+                  else if (!feedState.canLoadMore && feedState.items.isNotEmpty)
+                    const Padding(
+                      padding: EdgeInsets.all(16),
+                      child: Center(
+                        child: Text('Başka gönderi yok.'),
+                      ),
+                    ),
+                ],
+              ),
           ],
         ),
       ),

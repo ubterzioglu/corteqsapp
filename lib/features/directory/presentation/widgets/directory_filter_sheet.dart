@@ -6,7 +6,7 @@ import '../directory_providers.dart';
 
 /// Filtre bottom sheet (app.md 363): rol / ülke / şehir / öne çıkanlar.
 /// Geçici yerel state ile çalışır; "Uygula" ile global filtreye yazılır.
-/// Not: ülke/şehir şimdilik serbest metin; tam geo range() picker ayrı adımda.
+/// Ülke/şehir için geo picker dropdown kullanılır.
 class DirectoryFilterSheet extends ConsumerStatefulWidget {
   const DirectoryFilterSheet({super.key});
 
@@ -24,22 +24,75 @@ class DirectoryFilterSheet extends ConsumerStatefulWidget {
 
 class _State extends ConsumerState<DirectoryFilterSheet> {
   late DirectoryFilters _draft;
-  late final TextEditingController _country;
-  late final TextEditingController _city;
+  String? _selectedCountry;
+  String? _selectedCity;
+
+  // Geo data - gerçek uygulamada veritabanından çekilir
+  static const _countries = [
+    {'code': 'TR', 'name': 'Türkiye'},
+    {'code': 'DE', 'name': 'Almanya'},
+    {'code': 'US', 'name': 'Amerika Birleşik Devletleri'},
+    {'code': 'GB', 'name': 'Birleşik Krallık'},
+    {'code': 'FR', 'name': 'Fransa'},
+    {'code': 'NL', 'name': 'Hollanda'},
+    {'code': 'AT', 'name': 'Avusturya'},
+    {'code': 'CH', 'name': 'İsviçre'},
+    {'code': 'BE', 'name': 'Belçika'},
+    {'code': 'all', 'name': 'Tüm Ülkeler'},
+  ];
+
+  static final Map<String, List<String>> _citiesByCountry = {
+    'TR': [
+      'İstanbul',
+      'Ankara',
+      'İzmir',
+      'Bursa',
+      'Antalya',
+    ],
+    'DE': [
+      'Berlin',
+      'Münih',
+      'Frankfurt',
+      'Hamburg',
+      'Köln',
+    ],
+    'US': [
+      'New York',
+      'Los Angeles',
+      'Chicago',
+      'Houston',
+      'Phoenix',
+    ],
+    'GB': [
+      'Londra',
+      'Manchester',
+      'Birmingham',
+      'Liverpool',
+      'Leeds',
+    ],
+    'FR': [
+      'Paris',
+      'Lyon',
+      'Marsilya',
+      'Toulouse',
+      'Nice',
+    ],
+  };
 
   @override
   void initState() {
     super.initState();
     _draft = ref.read(directoryFiltersProvider);
-    _country = TextEditingController(text: _draft.countryCode);
-    _city = TextEditingController(text: _draft.city);
+    _selectedCountry =
+        _draft.countryCode.isEmpty ? null : _draft.countryCode;
+    _selectedCity = _draft.city.isEmpty ? null : _draft.city;
   }
 
-  @override
-  void dispose() {
-    _country.dispose();
-    _city.dispose();
-    super.dispose();
+  List<String> get _availableCities {
+    if (_selectedCountry == null || _selectedCountry == 'all') {
+      return [];
+    }
+    return _citiesByCountry[_selectedCountry!] ?? [];
   }
 
   @override
@@ -62,7 +115,7 @@ class _State extends ConsumerState<DirectoryFilterSheet> {
           roleOptions.when(
             data: (options) => DropdownButtonFormField<String>(
               key: const Key('directory_filter_role'),
-              initialValue: _draft.roleKey,
+              value: _draft.roleKey,
               decoration: const InputDecoration(labelText: 'Rol'),
               items: [
                 const DropdownMenuItem(value: 'all', child: Text('Tümü')),
@@ -76,15 +129,55 @@ class _State extends ConsumerState<DirectoryFilterSheet> {
             error: (_, _) => const Text('Roller yüklenemedi'),
           ),
           const SizedBox(height: 12),
-          TextField(
-            controller: _country,
-            decoration: const InputDecoration(labelText: 'Ülke kodu (örn. DE)'),
+          // Ülke dropdown
+          DropdownButtonFormField<String>(
+            value: _selectedCountry,
+            decoration: const InputDecoration(labelText: 'Ülke'),
+            items: _countries.map((country) {
+              return DropdownMenuItem<String>(
+                value: country['code'],
+                child: Text(country['name']!),
+              );
+            }).toList(),
+            onChanged: (value) {
+              setState(() {
+                _selectedCountry = value;
+                _selectedCity = null; // Şehri sıfırla
+              });
+            },
           ),
           const SizedBox(height: 12),
-          TextField(
-            controller: _city,
-            decoration: const InputDecoration(labelText: 'Şehir'),
-          ),
+          // Şehir dropdown (ülke seçiliyse)
+          if (_selectedCountry != null && _selectedCountry != 'all')
+            DropdownButtonFormField<String>(
+              value: _selectedCity,
+              decoration: const InputDecoration(labelText: 'Şehir'),
+              items: [
+                const DropdownMenuItem<String>(
+                  value: null,
+                  child: Text('Tüm Şehirler'),
+                ),
+                ..._availableCities.map((city) {
+                  return DropdownMenuItem<String>(
+                    value: city,
+                    child: Text(city),
+                  );
+                }),
+              ],
+              onChanged: (value) {
+                setState(() {
+                  _selectedCity = value;
+                });
+              },
+            )
+          else
+            const TextField(
+              enabled: false,
+              decoration: InputDecoration(
+                labelText: 'Şehir',
+                hintText: 'Önce ülke seçin',
+              ),
+            ),
           const SizedBox(height: 8),
           SwitchListTile(
             title: const Text('Sadece öne çıkanlar'),
@@ -110,8 +203,8 @@ class _State extends ConsumerState<DirectoryFilterSheet> {
                   key: const Key('directory_filter_apply_button'),
                   onPressed: () {
                     final applied = _draft.copyWith(
-                      countryCode: _country.text.trim(),
-                      city: _city.text.trim(),
+                      countryCode: _selectedCountry == 'all' ? '' : (_selectedCountry ?? ''),
+                      city: _selectedCity ?? '',
                     );
                     ref.read(directoryFiltersProvider.notifier).apply(applied);
                     Navigator.of(context).pop();
@@ -126,3 +219,4 @@ class _State extends ConsumerState<DirectoryFilterSheet> {
     );
   }
 }
+

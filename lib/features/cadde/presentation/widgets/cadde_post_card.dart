@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../domain/cadde_models.dart';
+import 'comment_bottom_sheet.dart';
 
 /// Tek bir Cadde post kartı — içerik + reaksiyon bar + yorum sayısı (app.md 388-390).
 class CaddePostCard extends StatelessWidget {
@@ -63,10 +64,22 @@ class CaddePostCard extends StatelessWidget {
                   onTap: () => onReact(CaddeReactionType.idea),
                 ),
                 const Spacer(),
-                Icon(Icons.mode_comment_outlined,
-                    size: 16, color: theme.disabledColor),
-                const SizedBox(width: 4),
-                Text('${post.commentCount}'),
+                // Yorum butonu
+                TextButton.icon(
+                  key: isFirst
+                      ? const Key('cadde_comment_button')
+                      : null,
+                  onPressed: () => CommentBottomSheet.show(
+                    context,
+                    postId: post.id,
+                    commentCount: post.commentCount,
+                  ),
+                  icon: const Icon(Icons.mode_comment_outlined, size: 18),
+                  label: Text('${post.commentCount}'),
+                  style: TextButton.styleFrom(
+                    foregroundColor: theme.disabledColor,
+                  ),
+                ),
               ],
             ),
           ],

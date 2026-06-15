@@ -5,7 +5,11 @@ import '../../../shared/providers/auth_providers.dart';
 import '../../../shared/widgets/async_value_view.dart';
 import '../../auth/data/auth_repository.dart';
 import '../data/profile_repository.dart';
+import '../domain/profile_models.dart';
 import '../domain/profile_view_model.dart';
+import 'applications_access_page.dart';
+import 'document_upload_page.dart';
+import 'profile_edit_page.dart';
 import 'widgets/profile_summary_header.dart';
 
 /// Kendi profili (member hub) — sekmeli yapı (app.md 373-386).
@@ -23,6 +27,18 @@ class SelfProfilePage extends ConsumerWidget {
         appBar: AppBar(
           title: const Text('Profilim'),
           actions: [
+            IconButton(
+              key: const Key('profile_edit_button'),
+              icon: const Icon(Icons.edit),
+              tooltip: 'Profili Düzenle',
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => const ProfileEditPage(),
+                  ),
+                );
+              },
+            ),
             IconButton(
               key: const Key('profile_signout_button'),
               icon: const Icon(Icons.logout),
@@ -50,10 +66,9 @@ class SelfProfilePage extends ConsumerWidget {
             return TabBarView(
               children: [
                 _SummaryTab(model: model),
-                const _PlaceholderTab('Profil alanları (sonraki iterasyon)'),
-                const _PlaceholderTab(
-                    'Rol başvurusu, feature talepleri, dashboard erişimleri, bekleyen talepler'),
-                const _PlaceholderTab('CV / sunum yükleme (profile.cv_upload)'),
+                const _ProfileFieldsTab(),
+                const _ApplicationsAccessTab(),
+                const _DocumentsTab(),
                 const _HelpTab(),
               ],
             );
@@ -76,6 +91,125 @@ class _SummaryTab extends StatelessWidget {
         ProfileSummaryHeader(model: model),
       ],
     );
+  }
+}
+
+/// Profil alanları tab'ı — mevcut alanları gösterir ve düzenleme sayfasına link verir.
+class _ProfileFieldsTab extends ConsumerWidget {
+  const _ProfileFieldsTab();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final profile = ref.watch(currentProfileProvider);
+
+    return AsyncValueView<CurrentUserProfile?>(
+      value: profile,
+      data: (profile) {
+        if (profile == null) {
+          return const Center(child: Text('Profil yüklenemedi.'));
+        }
+
+        if (profile.attributes.isEmpty) {
+          return Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.person_outline, size: 48),
+                const SizedBox(height: 16),
+                const Text('Henüz profil alanı yok.'),
+                const SizedBox(height: 16),
+                FilledButton.icon(
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const ProfileEditPage(),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.add),
+                  label: const Text('İlk Alanını Ekle'),
+                ),
+              ],
+            ),
+          );
+        }
+
+        return ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(Icons.info_outline),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            'Aşağıdaki alanları düzenlemek için butona tıklayın.',
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    FilledButton.icon(
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => const ProfileEditPage(),
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.edit),
+                      label: const Text('Tümünü Düzenle'),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            ...profile.attributes.map((attr) => Card(
+              child: ListTile(
+                title: Text(attr.label.isEmpty ? attr.attributeKey : attr.label),
+                subtitle: Text(
+                  attr.valueText ?? 'Boş',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                trailing: Chip(
+                  label: Text(attr.visibility == 'public' ? 'Public' : 'Private'),
+                  visualDensity: VisualDensity.compact,
+                ),
+              ),
+            )),
+          ],
+        );
+      },
+    );
+  }
+}
+
+/// Başvurular & Erişimler tab'ı.
+class _ApplicationsAccessTab extends StatelessWidget {
+  const _ApplicationsAccessTab();
+
+  @override
+  Widget build(BuildContext context) {
+    return const ApplicationsAccessPage();
+  }
+}
+
+/// Belgeler tab'ı — CV ve sunum yükleme sayfası.
+class _DocumentsTab extends StatelessWidget {
+  const _DocumentsTab();
+
+  @override
+  Widget build(BuildContext context) {
+    return const DocumentUploadPage();
   }
 }
 

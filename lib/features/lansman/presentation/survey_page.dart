@@ -168,6 +168,8 @@ class _SurveyFormState extends ConsumerState<_SurveyForm> {
                 ],
               ),
             )
+          else if (q.type == 'multiple' && options.isNotEmpty)
+            _buildMultiChoiceQuestion(q.id, options)
           else
             TextFormField(
               decoration: InputDecoration(
@@ -181,6 +183,37 @@ class _SurveyFormState extends ConsumerState<_SurveyForm> {
             ),
         ],
       ),
+    );
+  }
+
+  Widget _buildMultiChoiceQuestion(String questionId, List<String> options) {
+    // Initialize as empty set if not present
+    if (_answers[questionId] == null) {
+      _answers[questionId] = <String>[];
+    }
+
+    final selectedOptions = _answers[questionId] as List<String>;
+
+    return Column(
+      children: [
+        for (final opt in options)
+          CheckboxListTile(
+            contentPadding: EdgeInsets.zero,
+            title: Text(opt),
+            value: selectedOptions.contains(opt),
+            onChanged: (checked) {
+              setState(() {
+                final currentList = List<String>.from(_answers[questionId] as List<String> ?? []);
+                if (checked == true) {
+                  currentList.add(opt);
+                } else {
+                  currentList.remove(opt);
+                }
+                _answers[questionId] = currentList;
+              });
+            },
+          ),
+      ],
     );
   }
 
