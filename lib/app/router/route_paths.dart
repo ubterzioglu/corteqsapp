@@ -29,6 +29,9 @@ class RoutePaths {
   static const survey = '/anket/:slug';
   static String surveyOf(String slug) => '/anket/$slug';
 
+  /// Admin-lite (auth + is_admin; RoleGate UI tarafında, route yalnız login ister).
+  static const admin = '/admin';
+
   /// Auth gerektiren kökler (router redirect guard için).
-  static const protectedRoots = <String>{profile, directory, cadde};
+  static const protectedRoots = <String>{profile, directory, cadde, admin};
 }

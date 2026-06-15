@@ -8,6 +8,7 @@ import '../../features/cadde/presentation/cafe_detail_page.dart';
 import '../../features/cadde/presentation/carsi_page.dart';
 import '../../features/directory/presentation/directory_page.dart';
 import '../../features/directory/presentation/public_profile_page.dart';
+import '../../features/admin_lite/presentation/admin_lite_shell.dart';
 import '../../features/home/presentation/home_page.dart';
 import '../../features/lansman/presentation/survey_page.dart';
 import '../../features/profile/presentation/self_profile_page.dart';
@@ -63,6 +64,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         parentNavigatorKey: _rootKey,
         builder: (context, state) =>
             SurveyPage(slug: state.pathParameters['slug']!),
+      ),
+      // Admin-lite (auth guard'dan geçer; is_admin RoleGate UI'da).
+      GoRoute(
+        path: RoutePaths.admin,
+        parentNavigatorKey: _rootKey,
+        builder: (context, state) => const AdminLiteShell(),
       ),
       GoRoute(
         path: RoutePaths.login,
