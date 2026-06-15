@@ -3,6 +3,11 @@
 !/env/*.example
 *.env
 .env.local
+.env.example
+
+# Kök çalışma dosyaları — repoya girmez (kullanıcı talebi)
+/.omc/
+/app.md
 
 # Miscellaneous
 *.class
