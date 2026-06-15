@@ -8,6 +8,8 @@
 # Kök çalışma dosyaları — repoya girmez (kullanıcı talebi)
 /.omc/
 /app.md
+# Handover — Supabase credential içerir, ASLA commit edilmez
+/HANDOVER.md
 
 # Miscellaneous
 *.class
