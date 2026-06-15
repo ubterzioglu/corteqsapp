@@ -27,7 +27,7 @@ class _CarsiPageState extends ConsumerState<CarsiPage> {
     'other',
   ];
 
-  final _items = List.generate(
+  late final _items = List.generate(
     12,
     (index) => _CarsiItem(
       id: 'item_$index',

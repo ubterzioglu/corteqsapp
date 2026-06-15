@@ -1,7 +1,8 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import '../../core/network/supabase_provider.dart';
+import '../../../core/network/supabase_provider.dart';
 import '../data/cadde_repository.dart';
 import '../domain/cadde_models.dart';
 

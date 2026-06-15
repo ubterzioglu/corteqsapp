@@ -311,14 +311,20 @@ class _ProfileEditPageState extends ConsumerState<ProfileEditPage> {
             Text(label),
             const Spacer(),
             // Public/Private toggle
-                : Icons.lock_outline),
-            onChanged: (value) {
-              setState(() {
-                _visibilityStates[key] = value ?? false;
-              });
-            },
-          ),
-        ],
+            Icon(
+              isPublic ? Icons.public : Icons.lock_outline,
+              size: 18,
+            ),
+            Checkbox(
+              value: isPublic,
+              onChanged: (value) {
+                setState(() {
+                  _visibilityStates[key] = value ?? false;
+                });
+              },
+            ),
+          ],
+        ),
         const SizedBox(height: 8),
         TextFormField(
           controller: controller,

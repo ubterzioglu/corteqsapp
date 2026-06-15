@@ -5,6 +5,7 @@ import '../../../shared/providers/auth_providers.dart';
 import '../../../shared/widgets/async_value_view.dart';
 import '../../../shared/widgets/role_gate.dart';
 import '../../profile/data/profile_repository.dart';
+import '../../profile/domain/profile_models.dart';
 import '../data/admin_repository.dart';
 import '../domain/admin_approval.dart';
 

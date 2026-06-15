@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../shared/providers/auth_providers.dart';
 import '../../../shared/widgets/async_value_view.dart';
 import '../../../shared/widgets/feature_gate.dart';
+import '../data/profile_repository.dart';
 import '../domain/profile_models.dart';
 
 /// Başvurular & Erişimler tab'ı.
@@ -180,7 +181,7 @@ class _FeatureList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final features = ref.watch(featureFlagsProvider).value ?? const [];
+    final features = ref.watch(featureFlagsProvider).value ?? const <String>{};
 
     if (features.isEmpty) {
       return const Text('Henüz feature erişimi yok.');
