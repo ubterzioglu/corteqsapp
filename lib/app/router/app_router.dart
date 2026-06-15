@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 
 import '../../features/auth/presentation/login_page.dart';
 import '../../features/cadde/presentation/cadde_feed_page.dart';
+import '../../features/cadde/presentation/cafe_detail_page.dart';
+import '../../features/cadde/presentation/carsi_page.dart';
 import '../../features/directory/presentation/directory_page.dart';
 import '../../features/directory/presentation/public_profile_page.dart';
 import '../../features/home/presentation/home_page.dart';
@@ -97,6 +99,18 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: RoutePaths.cadde,
                 builder: (context, state) => const CaddeFeedPage(),
+                routes: [
+                  GoRoute(
+                    path: 'cafe/:cafeId',
+                    builder: (context, state) => CafeDetailPage(
+                      cafeId: state.pathParameters['cafeId']!,
+                    ),
+                  ),
+                  GoRoute(
+                    path: 'carsi',
+                    builder: (context, state) => const CarsiPage(),
+                  ),
+                ],
               ),
             ],
           ),
