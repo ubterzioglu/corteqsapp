@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -12,7 +13,14 @@ class AuthRepository {
 
   /// OAuth callback için mobil deep link (Android/iOS custom scheme).
   /// Supabase dashboard'da redirect URL olarak da kayıtlı olmalı.
-  static const oauthRedirect = 'com.corteqs.corteqs_app://login-callback';
+  static const oauthRedirectMobile = 'com.corteqs.corteqs_app://login-callback';
+
+  /// Platforma göre redirect hedefi:
+  /// - Web: mevcut origin (örn. https://....netlify.app) — custom scheme web'de çalışmaz.
+  /// - Mobil: custom scheme deep link.
+  /// Web origin'i ayrıca Supabase dashboard'da Redirect URL olarak kayıtlı olmalı.
+  static String get oauthRedirect =>
+      kIsWeb ? Uri.base.origin : oauthRedirectMobile;
 
   Session? get currentSession => _client.auth.currentSession;
   User? get currentUser => _client.auth.currentUser;
