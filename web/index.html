@@ -31,6 +31,32 @@
 
   <title>corteqs_app</title>
   <link rel="manifest" href="manifest.json">
+
+  <!--
+    Passkeys Web SDK stub.
+
+    supabase_flutter -> passkeys -> passkeys_web bağımlılığı, web'de başlangıçta
+    PasskeysWeb.registerWith() içinde KOŞULSUZ olarak PasskeyAuthenticator.init()
+    çağırır. Global yoksa "Cannot read properties of undefined (reading 'init')"
+    fırlatıp tüm engine bootstrap'ını çökertir (beyaz ekran).
+
+    Uygulama passkey AKIŞINI hiç kullanmıyor (yalnız e-posta/şifre + Google OAuth).
+    Bu yüzden harici bir SDK (corbado bundle.js) yüklemek yerine, init()'i
+    karşılayan ve olası çağrıları güvenli şekilde no-op yapan minimal bir stub
+    tanımlıyoruz. Gerçek passkey desteği gerekirse bu stub'ı kaldırıp resmi
+    bundle.js'i (github.com/corbado/flutter-passkeys releases) ekleyin.
+  -->
+  <script>
+    window.PasskeyAuthenticator = {
+      init: function () {},
+      register: function () { return Promise.reject('passkeys not supported on this build'); },
+      login: function () { return Promise.reject('passkeys not supported on this build'); },
+      cancelCurrentAuthenticatorOperation: function () {},
+      isUserVerifyingPlatformAuthenticatorAvailable: function () { return Promise.resolve(false); },
+      isConditionalMediationAvailable: function () { return Promise.resolve(false); },
+      hasPasskeySupport: function () { return false; }
+    };
+  </script>
 </head>
 <body>
   <!--
