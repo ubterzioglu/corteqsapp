@@ -47,6 +47,17 @@ dependencies:
   intl: ^0.20.2
   cached_network_image: ^3.4.1
 
+  # UI / design system (CorteQS redesign)
+  google_fonts: ^6.2.1
+  flutter_animate: ^4.5.0
+  flutter_svg: ^2.0.10+1
+  shimmer: ^3.0.0
+  glassmorphism: ^3.0.0
+  animations: ^2.0.11
+  smooth_page_indicator: ^1.1.0
+  lottie: ^3.1.2
+  rive: ^0.13.13
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

@@ -110,6 +110,7 @@ class _ProfileEditPageState extends ConsumerState<ProfileEditPage> {
     final profile = ref.watch(currentProfileProvider);
 
     return Scaffold(
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         title: const Text('Profili Düzenle'),
         actions: [

@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/ui/design_tokens.dart';
 import '../../../shared/providers/auth_providers.dart';
-import '../domain/cadde_models.dart';
+import '../../../shared/widgets/corteqs_empty_state.dart';
+import '../../../shared/widgets/corteqs_loader.dart';
+import '../../../shared/widgets/glass_card.dart';
+import '../../../shared/widgets/gradient_button.dart';
 import 'cadde_providers.dart';
 import 'widgets/cadde_post_card.dart';
 
@@ -57,8 +61,11 @@ class _CaddeFeedPageState extends ConsumerState<CaddeFeedPage> {
     final feedState = ref.watch(caddeFeedProvider);
 
     return Scaffold(
+      backgroundColor: Colors.transparent,
       appBar: AppBar(title: const Text('Cadde')),
       body: RefreshIndicator(
+        color: AppColors.purple,
+        backgroundColor: AppColors.elevatedSurface,
         onRefresh: _refresh,
         child: ListView(
           key: const Key('cadde_feed_page'),
@@ -69,15 +76,21 @@ class _CaddeFeedPageState extends ConsumerState<CaddeFeedPage> {
             const SizedBox(height: 8),
             if (feedState.hasError)
               const Padding(
-                padding: EdgeInsets.all(24),
-                child: Center(
-                  child: Text('Bir hata oluştu. Yenilemeyi deneyin.'),
+                padding: EdgeInsets.symmetric(vertical: 48),
+                child: CorteqsEmptyState(
+                  icon: Icons.cloud_off_outlined,
+                  title: 'Bir bağlantı kopmuş gibi görünüyor.',
+                  message: 'Aşağı çekerek tekrar deneyebilirsin.',
                 ),
               )
             else if (feedState.items.isEmpty)
               const Padding(
-                padding: EdgeInsets.all(24),
-                child: Center(child: Text('Henüz gönderi yok.')),
+                padding: EdgeInsets.symmetric(vertical: 48),
+                child: CorteqsEmptyState(
+                  icon: Icons.forum_outlined,
+                  title: 'Yeni bağlantılar yeni sohbetlerle başlar.',
+                  message: 'İlk gönderiyi sen paylaşabilirsin.',
+                ),
               )
             else
               Column(
@@ -93,15 +106,16 @@ class _CaddeFeedPageState extends ConsumerState<CaddeFeedPage> {
                   if (feedState.isLoadingMore || _showLoadingIndicator)
                     const Padding(
                       padding: EdgeInsets.all(16),
-                      child: Center(
-                        child: CircularProgressIndicator(),
-                      ),
+                      child: CorteqsLoader(size: 36),
                     )
                   else if (!feedState.canLoadMore && feedState.items.isNotEmpty)
-                    const Padding(
-                      padding: EdgeInsets.all(16),
+                    Padding(
+                      padding: const EdgeInsets.all(16),
                       child: Center(
-                        child: Text('Başka gönderi yok.'),
+                        child: Text(
+                          'Başka gönderi yok.',
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
                       ),
                     ),
                 ],
@@ -133,43 +147,38 @@ class _ComposerState extends ConsumerState<_Composer> {
     final state = ref.watch(caddeComposerProvider);
     final isLoading = state.isLoading;
 
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            TextField(
-              key: const Key('cadde_post_body_input'),
-              controller: _ctrl,
-              minLines: 2,
-              maxLines: 5,
-              decoration: const InputDecoration(
-                hintText: 'Bir şeyler paylaş…',
-                border: OutlineInputBorder(),
-              ),
+    return GlassCard(
+      margin: const EdgeInsets.only(bottom: AppSpacing.sm),
+      padding: const EdgeInsets.all(AppSpacing.md),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          TextField(
+            key: const Key('cadde_post_body_input'),
+            controller: _ctrl,
+            minLines: 2,
+            maxLines: 5,
+            decoration: const InputDecoration(
+              hintText: 'Bir şeyler paylaş…',
             ),
-            const SizedBox(height: 8),
-            FilledButton(
-              key: const Key('cadde_post_submit_button'),
-              onPressed: isLoading
-                  ? null
-                  : () async {
-                      final ok = await ref
-                          .read(caddeComposerProvider.notifier)
-                          .submit(_ctrl.text);
-                      if (ok) _ctrl.clear();
-                    },
-              child: isLoading
-                  ? const SizedBox(
-                      height: 18,
-                      width: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Text('Paylaş'),
-            ),
-          ],
-        ),
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          GradientButton(
+            key: const Key('cadde_post_submit_button'),
+            label: 'Paylaş',
+            icon: Icons.send_rounded,
+            expand: false,
+            loading: isLoading,
+            onPressed: isLoading
+                ? null
+                : () async {
+                    final ok = await ref
+                        .read(caddeComposerProvider.notifier)
+                        .submit(_ctrl.text);
+                    if (ok) _ctrl.clear();
+                  },
+          ),
+        ],
       ),
     );
   }

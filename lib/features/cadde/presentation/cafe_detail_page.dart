@@ -19,6 +19,7 @@ class CafeDetailPage extends ConsumerWidget {
     final isLoggedIn = ref.watch(isLoggedInProvider);
 
     return Scaffold(
+      backgroundColor: Colors.transparent,
       body: CustomScrollView(
         slivers: [
           SliverAppBar(

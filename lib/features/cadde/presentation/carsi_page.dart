@@ -48,6 +48,7 @@ class _CarsiPageState extends ConsumerState<CarsiPage> {
         : _items.where((item) => item.category == _selectedCategory).toList();
 
     return Scaffold(
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         title: const Text('Çarşı'),
         actions: [
@@ -244,6 +245,7 @@ class _CarsiItemDetailPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.transparent,
       appBar: AppBar(title: Text(item.title)),
       body: ListView(
         padding: const EdgeInsets.all(16),

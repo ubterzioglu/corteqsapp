@@ -161,6 +161,7 @@ class _DocumentUploadPageState extends ConsumerState<DocumentUploadPage> {
     final profile = ref.watch(currentProfileProvider);
 
     return Scaffold(
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         title: const Text('Belgeler'),
       ),

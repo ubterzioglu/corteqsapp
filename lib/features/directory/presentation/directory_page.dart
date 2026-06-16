@@ -5,6 +5,8 @@ import 'package:go_router/go_router.dart';
 import '../../../app/router/route_paths.dart';
 import '../../../shared/providers/auth_providers.dart';
 import '../../../shared/widgets/async_value_view.dart';
+import '../../../shared/widgets/corteqs_empty_state.dart';
+import '../../../shared/widgets/shimmer_skeleton.dart';
 import '../domain/directory_models.dart';
 import 'directory_providers.dart';
 import 'widgets/directory_filter_sheet.dart';
@@ -20,6 +22,7 @@ class DirectoryPage extends ConsumerWidget {
     final isLoggedIn = ref.watch(isLoggedInProvider);
 
     return Scaffold(
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         title: const Text('Dizin'),
         actions: [
@@ -43,27 +46,13 @@ class _AuthGate extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      key: const Key('directory_auth_gate'),
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.lock_outline, size: 48),
-            const SizedBox(height: 16),
-            const Text(
-              'Dizini görüntülemek için giriş yapın.',
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 16),
-            FilledButton(
-              onPressed: () => context.go(RoutePaths.login),
-              child: const Text('Giriş Yap'),
-            ),
-          ],
-        ),
-      ),
+    return CorteqsEmptyState(
+      dataKey: const Key('directory_auth_gate'),
+      icon: Icons.lock_outline,
+      title: 'Dizini görüntülemek için giriş yapın.',
+      message: 'Dünyadaki Türk ağını keşfetmek için bir adım uzaktasın.',
+      actionLabel: 'Giriş Yap',
+      onAction: () => context.go(RoutePaths.login),
     );
   }
 }
@@ -93,11 +82,14 @@ class _DirectoryBody extends ConsumerWidget {
         Expanded(
           child: AsyncValueView<List<DirectoryRow>>(
             value: results,
+            loading: () => const ShimmerSkeleton(),
             data: (rows) {
               if (rows.isEmpty) {
-                return const Center(
-                  key: Key('directory_empty'),
-                  child: Text('Sonuç bulunamadı.'),
+                return const CorteqsEmptyState(
+                  dataKey: Key('directory_empty'),
+                  icon: Icons.person_search_outlined,
+                  title: 'Henüz burada kimse yok.',
+                  message: 'Ama ilk bağlantıyı sen başlatabilirsin.',
                 );
               }
               return Column(

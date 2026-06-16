@@ -22,6 +22,7 @@ class PublicProfilePage extends ConsumerWidget {
     final page = ref.watch(publicPageProvider(slug));
 
     return Scaffold(
+      backgroundColor: Colors.transparent,
       appBar: AppBar(title: const Text('Profil')),
       body: AsyncValueView<Map<String, dynamic>?>(
         value: page,

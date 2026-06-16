@@ -19,6 +19,7 @@ class AdminLiteShell extends ConsumerWidget {
     return DefaultTabController(
       length: 3,
       child: Scaffold(
+        backgroundColor: Colors.transparent,
         appBar: AppBar(
           title: const Text('Yönetim (Lite)'),
           bottom: const TabBar(

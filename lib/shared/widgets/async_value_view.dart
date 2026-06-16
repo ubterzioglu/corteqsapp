@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'corteqs_empty_state.dart';
+import 'corteqs_loader.dart';
+
 /// AsyncValue için standart loading/error/data sarmalayıcısı.
-/// Tüm asenkron ekranlar bunu kullanarak tutarlı empty/loading/error katmanları sağlar.
+/// Varsayılan loading → markalı CorteqsLoader, error → friendly empty-state.
+/// Tüm asenkron ekranlar bunu kullanarak tutarlı katmanlar sağlar.
 class AsyncValueView<T> extends StatelessWidget {
   const AsyncValueView({
     super.key,
@@ -21,13 +25,12 @@ class AsyncValueView<T> extends StatelessWidget {
   Widget build(BuildContext context) {
     return value.when(
       data: data,
-      loading: loading ?? () => const Center(child: CircularProgressIndicator()),
+      loading: loading ?? () => const CorteqsLoader(),
       error: error ??
-          (e, st) => Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Text('Bir hata oluştu: $e'),
-                ),
+          (e, st) => const CorteqsEmptyState(
+                icon: Icons.cloud_off_outlined,
+                title: 'Bir bağlantı kopmuş gibi görünüyor.',
+                message: 'Tekrar deneyelim mi?',
               ),
     );
   }

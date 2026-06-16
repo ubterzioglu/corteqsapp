@@ -24,6 +24,7 @@ class SelfProfilePage extends ConsumerWidget {
     return DefaultTabController(
       length: 5,
       child: Scaffold(
+        backgroundColor: Colors.transparent,
         appBar: AppBar(
           title: const Text('Profilim'),
           actions: [
@@ -210,21 +211,6 @@ class _DocumentsTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const DocumentUploadPage();
-  }
-}
-
-class _PlaceholderTab extends StatelessWidget {
-  const _PlaceholderTab(this.label);
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Text(label, textAlign: TextAlign.center),
-      ),
-    );
   }
 }
 

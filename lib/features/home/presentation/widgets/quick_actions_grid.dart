@@ -2,53 +2,100 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../app/router/route_paths.dart';
+import '../../../../core/ui/design_tokens.dart';
+import '../../../../shared/widgets/glass_card.dart';
+import '../../../../shared/widgets/section_header.dart';
 
-/// Hızlı eylem ızgarası — dizin / Cadde / profil keşif kartları (app.md 343).
+/// Hızlı eylem ızgarası — dizin / Cadde / profil / iletişim keşif kartları
+/// (app.md 343). Cam + marka renkli ikon + basışta ölçek.
 class QuickActionsGrid extends StatelessWidget {
   const QuickActionsGrid({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final actions = <_QuickAction>[
-      const _QuickAction('Dizin', Icons.people, RoutePaths.directory),
-      const _QuickAction('Cadde', Icons.forum, RoutePaths.cadde),
-      const _QuickAction('Profilim', Icons.person, RoutePaths.profile),
-      const _QuickAction('İletişim', Icons.mail_outline, RoutePaths.contact),
+    const actions = <_QuickAction>[
+      _QuickAction(
+        'Dizin',
+        Icons.people_alt_rounded,
+        AppColors.blue,
+        RoutePaths.directory,
+      ),
+      _QuickAction(
+        'Cadde',
+        Icons.forum_rounded,
+        AppColors.purple,
+        RoutePaths.cadde,
+      ),
+      _QuickAction(
+        'Profilim',
+        Icons.account_circle_rounded,
+        AppColors.green,
+        RoutePaths.profile,
+      ),
+      _QuickAction(
+        'İletişim',
+        Icons.mail_rounded,
+        AppColors.red,
+        RoutePaths.contact,
+      ),
     ];
 
-    return GridView.count(
-      key: const Key('home_quick_actions'),
-      crossAxisCount: 2,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      mainAxisSpacing: 12,
-      crossAxisSpacing: 12,
-      childAspectRatio: 2.4,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        for (final a in actions)
-          Card(
-            child: InkWell(
-              onTap: () => context.go(a.path),
-              child: Padding(
-                padding: const EdgeInsets.all(12),
+        const SectionHeader(title: 'Hızlı Erişim'),
+        const SizedBox(height: AppSpacing.sm),
+        GridView.count(
+          key: const Key('home_quick_actions'),
+          crossAxisCount: 2,
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          mainAxisSpacing: AppSpacing.md,
+          crossAxisSpacing: AppSpacing.md,
+          childAspectRatio: 2.2,
+          children: [
+            for (final a in actions)
+              GlassCard(
+                glowColor: a.color,
+                borderRadius: AppRadii.lg,
+                padding: const EdgeInsets.all(AppSpacing.md),
+                onTap: () => context.go(a.path),
                 child: Row(
                   children: [
-                    Icon(a.icon),
-                    const SizedBox(width: 8),
-                    Flexible(child: Text(a.label)),
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: a.color.withValues(alpha: 0.18),
+                        border: Border.all(
+                          color: a.color.withValues(alpha: 0.5),
+                        ),
+                      ),
+                      child: Icon(a.icon, color: a.color, size: 20),
+                    ),
+                    const SizedBox(width: AppSpacing.sm),
+                    Flexible(
+                      child: Text(
+                        a.label,
+                        style: Theme.of(context).textTheme.titleMedium,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
                   ],
                 ),
               ),
-            ),
-          ),
+          ],
+        ),
       ],
     );
   }
 }
 
 class _QuickAction {
-  const _QuickAction(this.label, this.icon, this.path);
+  const _QuickAction(this.label, this.icon, this.color, this.path);
   final String label;
   final IconData icon;
+  final Color color;
   final String path;
 }

@@ -19,6 +19,7 @@ class SurveyPage extends ConsumerWidget {
     final submitState = ref.watch(surveyControllerProvider);
 
     return Scaffold(
+      backgroundColor: Colors.transparent,
       appBar: AppBar(title: const Text('Anket')),
       body: switch (submitState) {
         SurveySubmitted() => const _ThankYou(),
