@@ -7,8 +7,13 @@
 
 # Kök çalışma dosyaları — repoya girmez (kullanıcı talebi)
 /.omc/
+**/.omc/
 /app.md
 # HANDOVER.md repoya dahildir (credential içermez, placeholder kullanır)
+
+# Demo / dağıtım paketleri — geçici build çıktıları, repoya girmez
+*.zip
+corteqs-web-demo.zip
 
 # Miscellaneous
 *.class
